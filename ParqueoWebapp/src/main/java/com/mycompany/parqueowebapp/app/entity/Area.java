@@ -27,6 +27,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "area", schema = "public")
 @NamedQueries({
+    @NamedQuery(name = "Area.findAreaHasChild", query = "SELECT a.idAreaPadre FROM Area a WHERE a.idArea = :idArea"),
     @NamedQuery(name = "Area.findAreaHasParent", query = "SELECT a.idAreaPadre FROM Area a WHERE a.idArea = :idArea"),
     @NamedQuery(name = "Area.findAll", query = "SELECT a FROM Area a"),
     @NamedQuery(name = "Area.findByIdPadre", query = "SELECT a FROM Area a WHERE a.idAreaPadre.idArea = :idAreaPadre ORDER BY a.nombre ASC"),

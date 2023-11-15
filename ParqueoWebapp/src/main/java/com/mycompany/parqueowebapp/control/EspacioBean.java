@@ -13,8 +13,10 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -45,6 +47,7 @@ public class EspacioBean extends AbstractDataAccess<Espacio> implements Serializ
         }
         return Collections.EMPTY_LIST;
     }
+
     public List<Area> findByIdPadre(final Integer idAreaPadre, int primero, int tamanio) {
         if (idAreaPadre != null && primero >= 0 && tamanio > 0) {
             if (em != null) {
@@ -56,6 +59,78 @@ public class EspacioBean extends AbstractDataAccess<Espacio> implements Serializ
             }
         }
         return Collections.EMPTY_LIST;
+    }
+
+    public List<Espacio> findEspaciosByIdAreaPadre(final Integer idAreaPadre, int primero, int tamanio) {
+        if (idAreaPadre != null && primero >= 0 && tamanio > 0) {
+            if (em != null) {
+                List<Espacio> espaciosTotales = null;
+                if (countByIdArea(idAreaPadre) > 0) {
+
+                    Query q = em.createNamedQuery("Espacio.findByEspaciosByListAreas");
+                    q.setParameter("idAreaPadre", idAreaPadre);
+                    q.setFirstResult(0);
+                    q.setMaxResults(0);
+
+                    if (countByIdArea(idAreaPadre) > 0) {
+
+                        List<Area> listAreas = findByIdPadre(idAreaPadre, 0, 10000000);
+                        for (Area areaHija : listAreas) {
+                            espaciosTotales.addAll(findEspaciosByIdAreaPadre(areaHija.getIdArea(), 0, 100000));
+                        }
+
+                    } else {
+                        return q.getResultList();
+                    }
+
+                    return espaciosTotales;
+                } else {
+                    espaciosTotales = findByIdArea(idAreaPadre, primero, tamanio);
+                    return espaciosTotales;
+                }
+
+            }
+
+            return Collections.EMPTY_LIST;
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+    public List<Espacio> filtrarPorCaracteristicas(List<Espacio> espacios, List<Integer> idsCaracteristicas) {
+        if (espacios == null || espacios.isEmpty() || idsCaracteristicas == null || idsCaracteristicas.isEmpty()) {
+            return espacios; // No hay espacios o características para filtrar
+        }
+
+        // Crear una lista de IDs de espacios
+        List<Long> idsEspacios=new ArrayList<>();
+        for (Espacio OEspacio : espacios) {
+            idsEspacios.add(OEspacio.getIdEspacio());
+        }
+       
+        List<Long> idCaracteristicasLong = new ArrayList<>();
+        for(Integer caracteristica : idsCaracteristicas){
+            idCaracteristicasLong.add(caracteristica.longValue());
+        }
+       
+       
+        Query q = em.createNamedQuery("Espacio.filtrarCaracteristicas");
+        q.setParameter("idsEspacios", idsEspacios);
+        q.setParameter("idsCaracteristicas", idCaracteristicasLong);
+
+        // Obtener el resultado de la consulta
+        return q.getResultList();
+    }
+
+    private String construirClausaCaracteristicas(List<String> caracteristicas) {
+        StringBuilder jpql = new StringBuilder();
+
+        for (int i = 0; i < caracteristicas.size(); i++) {
+            jpql.append(" AND EXISTS (SELECT 1 FROM EspacioCaracteristica ec")
+                    .append(" WHERE ec.idEspacio = e.idEspacio")
+                    .append(" AND ec.descripcion = :caracteristica").append(i).append(")");
+        }
+
+        return jpql.toString();
     }
 
     public int countByIdArea(final Integer idArea) {

@@ -26,6 +26,9 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "espacio", schema = "public")
 @NamedQueries({
+    @NamedQuery(name = "Espacio.filtrarCaracteristicas", query = "SELECT DISTINCT e FROM Espacio e JOIN e.espacioCaracteristicaCollection c\n" +
+    "WHERE e.idEspacio IN :idsEspacios AND c.idTipoEspacio.idTipoEspacio IN :idsCaracteristicas"),
+    @NamedQuery(name = "Espacio.findByEspaciosByListAreas", query = "SELECT e FROM Espacio e JOIN e.idArea a WHERE a.idAreaPadre.idArea = :idAreaPadre"),
     @NamedQuery(name = "Espacio.findAll", query = "SELECT e FROM Espacio e"),
     @NamedQuery(name = "Espacio.findByIdArea", query = "SELECT e FROM Espacio e WHERE e.idArea.idArea = :idArea ORDER BY e.nombre ASC"),
     @NamedQuery(name = "Espacio.countByIdArea", query = "SELECT COUNT (e.idEspacio) FROM Espacio e WHERE e.idArea.idArea = :idArea"),

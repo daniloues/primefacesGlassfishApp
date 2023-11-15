@@ -116,7 +116,17 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
     SELECCIONADA Y QUIZA caractaristicasDisponibles ES DE ANALIZAR EL CODIGO
      */
     public void refinarBusquedaNodo() {
+        if (caracteristicasSeleccionadas != null && !caracteristicasSeleccionadas.isEmpty()) {
+            // Se han seleccionado características, realizar la búsqueda filtrada
+            
 
+            // Filtrar espacios por las características seleccionadas
+            espaciosDisponibles = eBean.filtrarPorCaracteristicas(espaciosDisponibles, caracteristicasSeleccionadas);
+        } else {
+            // No hay características seleccionadas, mostrar todos los espacios
+            Area area = (Area) nodoSeleccionado.getData();
+            espaciosDisponibles = eBean.findByIdArea(area.getIdArea(), 0, 10000);
+        }
     }
 
     /*
@@ -129,7 +139,6 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
         if (this.areaE != null && this.areaE.getIdArea() != null && this.frmEspacio != null) {
             this.frmEspacio.setIdArea(areaE.getIdArea());
         }
-
         espaciosDisponibles = eBean.findByIdArea(area.getIdArea(), 0, 10000);
         caractaristicasDisponibles = teBean.findRange(0, 100000);
 
@@ -271,7 +280,7 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
         }
 
     }
-    
+
     public FrmArea getFrmArea() {
         return frmArea;
     }
