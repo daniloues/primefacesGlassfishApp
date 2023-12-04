@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:component 
+      xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="jakarta.faces.facelets">
+
+    <!-- INTERFACE -->
+    <cc:interface>
+        <cc:attribute
+            name="bean"
+            type="com.mycompany.parqueowebapp.boundary.jsf.frmAbstract"
+            required="true"
+            shortDescription="Nombre del backing bean que implemente las funcionalidades del CRUD"/>
+        <cc:attribute
+            name="refrescar"
+            type="java.lang.String"
+            required="false"
+            default="pnlDetalle @form"/>
+    </cc:interface>
+
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>
+        <h:panelGrid columns="2">
+            <p:commandButton value="NUEVA RESERVAR"
+                             style="padding: 1px"
+                             actionListener="#{cc.attrs.bean.btnNuevoHandler}" 
+                             update="#{cc.attrs.refrescar}"/>
+            <p:commandButton value="#{trad.frm_cancel}" 
+                             style="padding: 1px"
+                             actionListener="#{cc.attrs.bean.btnCancelarHandler}" 
+                             update="#{cc.attrs.refrescar}"
+                             rendered="#{not empty cc.attrs.bean.registro}"/>    
+        </h:panelGrid>
+    </cc:implementation>
+</ui:component>

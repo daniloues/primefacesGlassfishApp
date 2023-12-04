@@ -28,6 +28,7 @@ public class ReservaBean extends AbstractDataAccess<Reserva> implements Serializ
         TypedQuery q = em.createNamedQuery("Reserva.findLargerThan2", Reserva.class);
         return q.getResultList();
     }
+    
 
     @Override
     public EntityManager getEntityManager() {

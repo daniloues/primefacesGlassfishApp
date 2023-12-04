@@ -36,6 +36,7 @@ public class TipoReservaBean extends AbstractDataAccess<TipoReserva> implements 
     public String entityQuery(){
         return ("TipoReserva");
     }
+    @Override
     public EntityManager getEntityManager(){
         return em;
 }

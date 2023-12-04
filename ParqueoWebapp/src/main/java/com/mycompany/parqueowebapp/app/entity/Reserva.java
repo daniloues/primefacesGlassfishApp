@@ -27,7 +27,7 @@ import jakarta.persistence.TemporalType;
  * @author daniloues
  */
 @Entity
-@Table(name = "reserva", schema = "public")
+@Table(name = "reserva")
 @NamedQueries({
     @NamedQuery(name = "Reserva.count", query = "SELECT COUNT (r) FROM Reserva r"),
     @NamedQuery(name = "Reserva.findAll", query = "SELECT r FROM Reserva r"),

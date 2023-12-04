@@ -1,0 +1,270 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:btnparq="jakarta.faces.composite/btnparq"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+    <h:head>
+        <title>Parq-UES</title>
+        <h:outputStylesheet library="styles" name="style.css"/>
+    </h:head>
+
+    <h:body>
+        <p:panel>
+            <p:growl/>
+            <p:autoUpdate/>
+        </p:panel>
+
+        <h1>Parq-UES 1.0</h1>
+        
+        <!-- SE DEBE TRADUCIR LOS MENSAJES DE ERROR EN TODA LA APLICACION -->
+        <h:panelGrid>
+            <h:form id="frmSeleccionarIdioma">
+                <h:selectOneMenu value="#{sesionUsuario.idiomaSeleccionado}"
+                                 valueChangeListener="#{sesionUsuario.cambiarIdioma}">
+                    <f:selectItems
+                        value="#{sesionUsuario.idiomas}"
+                        var="idio"
+                        itemLabel="#{idio}" itemValue="#{idio}"/>
+                    <f:ajax render="@all"/>
+                </h:selectOneMenu>
+            </h:form>
+        </h:panelGrid>
+        
+        <p:splitter id="panelesLados" styleClass="container">
+            <p:splitterPanel id="seleccion" size="30" styleClass="leftPanel">
+                <h:form id="pnlDetalle" rendered="#{not empty frmReserva.registro}" styleClass="containerLeft">
+                    <btnparq:botonesTop bean="#{frmReserva}"/>
+                    <p:outputPanel id="renderPanel">
+                        <h:inputText id="txtId" value="#{frmReserva.registro.idReserva}" disabled="true" readonly="true" size="70" rendered="#{devMode}"/>
+                    <p:outputLabel for="lstTipo" value="Tipo de Reserva"/>
+                    <p:selectOneMenu id="lstTipo" value="#{frmReserva.registro.idTipoReserva}" converter="tipoReservaConverter">
+                        <f:selectItem noSelectionOption="true" itemLabel="Seleccione uno" itemValue="#{null}"/>
+                        <f:selectItems value="#{frmReserva.listaTipoReserva}" var="tr"
+                                       itemLabel="#{tr.nombre}" itemValue="#{tr}" itemDescription="#{tr.descripcion}"/>
+                        <p:ajax process="@this" update="renderPanel"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel for="areaSelectMenu" value="Area del parqueo" rendered="#{not empty frmReserva.registro.idTipoReserva}"/>
+                    <p:commandButton id="areaSelectMenu" title="Escoger el area" rendered="#{not empty frmReserva.registro.idTipoReserva}"
+                                     type="button" onclick="PF('dlgArea').show();"/>
+                    <h:panelGrid columns="2" id="pnlDesde">
+                                <p:outputLabel for="txtDesde" value="Desde" rendered="#{not empty frmReserva.registro.idTipoReserva and not empty frmReserva.frmEspacio.idArea}"/>
+                                <p:calendar id="txtDesde" pattern="dd/MM/yyyy HH:mm:ss" 
+                                            showHour="true" showMinute="true" value="#{frmReserva.registro.desde}"
+                                            timeZone="GMT"
+                                            rendered="#{not empty frmReserva.registro.idTipoReserva and not empty frmReserva.frmEspacio.idArea}">
+                                    <p:ajax process="@this" update="pnlHasta caracteristicasRender" listener="#{frmReserva.cambiarFechaDesde}"/>
+                                </p:calendar>
+                            </h:panelGrid>
+                            <h:panelGrid columns="2" id="pnlHasta">
+                                <p:outputLabel for="txtHasta" value="Hasta" 
+                                               rendered="#{not empty frmReserva.registro.desde and not empty frmReserva.registro.idTipoReserva and not empty frmReserva.frmEspacio.idArea}"/>
+                                <p:calendar id="txtHasta" pattern="dd/MM/yyyy HH:mm:ss" showHour="true" showMinute="true" 
+                                            validator="#{frmReserva.validate}"
+                                            value="#{frmReserva.registro.hasta}" 
+                                            timeZone="GMT"
+                                            rendered="#{not empty frmReserva.registro.desde and not empty frmReserva.registro.idTipoReserva and not empty frmReserva.frmEspacio.idArea}">
+                                    <p:ajax process="@this" update="panelesLados" resetValues="true"/>
+                                </p:calendar>
+                            </h:panelGrid>
+                    <p:commandButton value="Boton" widgetVar="refreshBoton" style="display:none;">
+                        <p:ajax process="@this" update="renderPanel"/>
+                    </p:commandButton>
+                    <p:messages id="msgs" showDetail="true"/>
+                    </p:outputPanel>
+                    <p:outputPanel id="caracteristicasRender">
+                        <h:panelGrid>
+                        <p:panel toggleable="true" closable="false" collapsed="true" header="Refinar busqueda" 
+                                 rendered="#{not empty frmReserva.caractaristicasDisponibles and not empty frmReserva.registro.idTipoReserva and not empty frmReserva.registro.hasta}">
+                            <h:selectManyCheckbox layout="pageDirection" value="#{frmReserva.caracteristicasSeleccionadas}" required="false">
+                                <f:ajax listener="#{frmReserva.refinarBusquedaNodo}" render="@form" />
+                                <f:selectItems value="#{frmReserva.caracteristicasDisponiblesAsItems}"/>
+                            </h:selectManyCheckbox>
+                        </p:panel>
+                        </h:panelGrid>
+                    </p:outputPanel>
+                </h:form>
+            </p:splitterPanel>
+
+                <p:splitterPanel id="espacios" size="70" styleClass="rightPanel">
+                <p:tag value="aqui iran los espacios"/>
+                <h:form styleClass="containerRight">
+                    <p:outputPanel id="panelParqueosAdmon" rendered="#{not empty frmReserva.registro.hasta and frmReserva.idAreaSeleccionada == 3}">
+                        <p:selectOneRadio id="areaParqueoAdmon" value="#{frmReserva.registro.idEspacio}" layout="custom" columns="4" converter="espacioConverter">
+                    <f:selectItems value="#{frmReserva.espaciosDisponibles}" var="e" itemLabel="#{e.nombre}" itemValue="#{e}" itemDescription="#{e.observaciones}"/>
+                </p:selectOneRadio>
+                            <div class="ui-grid-responsive">
+            <div class="parking-grid">
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="0"/>
+                <div class="car"></div>
+            </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="1"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="2"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="3"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="4"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="5"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="6"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="7"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="8"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="9"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="10"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="11"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="12"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="13"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoAdmon" itemIndex="14"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="15"/>
+                <div class="car"></div>
+                </div>     
+                     </div>    
+                                    </div>
+                            </p:outputPanel>
+<!--                            ********** ESPACIOS ESTUDIANTES-->
+                <p:outputPanel id="panelParqueosPublico" rendered="#{not empty frmReserva.registro.hasta and frmReserva.idAreaSeleccionada == 2}">
+                            <p:selectOneRadio id="areaParqueoPublico" value="#{frmReserva.registro.idEspacio}" layout="custom" columns="4" converter="espacioConverter">
+                    <f:selectItems value="#{frmReserva.espaciosDisponibles}" var="e" itemLabel="#{e.nombre}" itemValue="#{e}" itemDescription="#{e.observaciones}"/>
+                </p:selectOneRadio>
+                        <div class="ui-grid-responsive">
+            <div class="parking-grid">
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="0"/>
+                <div class="car"></div>
+            </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="1"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="2"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="3"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="4"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="5"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="6"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="7"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="8"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="9"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="10"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="11"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="12"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="13"/>
+                <div class="car"></div>
+                </div>
+            <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="14"/>
+                <div class="car"></div>
+                </div>
+                    <div class="parking-slot">
+                <p:radioButton for="areaParqueoPublico" itemIndex="15"/>
+                <div class="car"></div>
+                </div>        
+            </div>                 
+            </div>
+
+                    </p:outputPanel>
+                </h:form>
+            </p:splitterPanel>
+
+        </p:splitter>
+
+        <p:dialog id="dlgArea" cache="false" dynamic="true"
+                  widgetVar="dlgArea" closable="false" header="Seleccione el area" onHide="PF('refreshBoton').getJQ().click();">
+            <h:form id="frmSeleccionarArea">
+                <h:panelGrid>
+                    <h:panelGrid columns="2">
+                        <p:tree value="#{frmReserva.raiz}" var="nodo" dynamic="true"
+                                selectionMode="single"
+                                selection="#{frmReserva.nodoSeleccionado}"
+                                >
+                            <p:ajax event="select" update="@form" listener="#{frmReserva.seleccionarNodoListenerArea}"/>
+                            <p:treeNode>
+                                <h:outputText value="#{nodo.nombre}"/>
+                            </p:treeNode> 
+                        </p:tree>
+                    </h:panelGrid>
+                        <h:panelGrid id="pnlAreas" columns="2">
+                    <p:commandButton value="Seleccionar" disabled="#{empty frmReserva.frmEspacio.idArea}" 
+                                     update="pnlAreas" oncomplete="PF('dlgArea').hide();"/>
+                    <p:commandButton value="Cerrar" type="button" onclick="PF('dlgArea').hide();"/>
+                </h:panelGrid>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+    </h:body>
+</html>

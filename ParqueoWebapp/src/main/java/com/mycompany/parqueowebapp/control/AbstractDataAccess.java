@@ -43,16 +43,16 @@ public abstract class AbstractDataAccess<T> {
      * @throws IllegalArgumentException Si el parametro es nulo
      */
     public void create(T registro) throws IllegalStateException, IllegalArgumentException {
-
+        EntityManager em = null;
         if (registro != null) {
             try {
-                EntityManager em = getEntityManager();
-                if (em != null) {
-                    em.persist(registro);
-                    return;
-                }
+                em = getEntityManager();
             } catch (Exception ex) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            }
+            if (em != null) {
+                em.persist(registro);
+                return;
             }
             throw new IllegalStateException();
         }
@@ -135,7 +135,7 @@ public abstract class AbstractDataAccess<T> {
         if (registro != null) {
             if (em != null) {
                 try {
-                    
+
                     em.remove(em.merge(registro));
                     return;
                 } catch (Exception ex) {

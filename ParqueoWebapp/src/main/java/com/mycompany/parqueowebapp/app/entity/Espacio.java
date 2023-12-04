@@ -26,8 +26,13 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "espacio", schema = "public")
 @NamedQueries({
-    @NamedQuery(name = "Espacio.filtrarCaracteristicas", query = "SELECT DISTINCT e FROM Espacio e JOIN e.espacioCaracteristicaCollection c\n" +
-    "WHERE e.idEspacio IN :idsEspacios AND c.idTipoEspacio.idTipoEspacio IN :idsCaracteristicas"),
+    @NamedQuery(name = "Espacio.findOcupados", query = "SELECT DISTINCT esp FROM Espacio esp LEFT JOIN esp.reservaCollection res WHERE (res.desde BETWEEN :desde AND :hasta ) OR (res.hasta BETWEEN :desde AND :hasta) OR (res.desde <= :desde AND res.hasta >= :hasta) OR (res.desde >= :desde AND res.hasta <= :hasta)"),
+    @NamedQuery(name = "Espacio.findCaracteristicaMatch", query = """
+                                                                   SELECT e FROM Espacio e JOIN e.espacioCaracteristicaCollection c
+                                                                                                                                    WHERE e.idEspacio = :idEspacio AND c.idTipoEspacio.idTipoEspacio = :idCaracteristica"""),
+    @NamedQuery(name = "Espacio.filtrarCaracteristicas", query = """
+                                                                 SELECT DISTINCT e FROM Espacio e JOIN e.espacioCaracteristicaCollection c
+                                                                 WHERE e.idEspacio IN :idsEspacios AND c.idTipoEspacio.idTipoEspacio IN :idsCaracteristicas"""),
     @NamedQuery(name = "Espacio.findByEspaciosByListAreas", query = "SELECT e FROM Espacio e JOIN e.idArea a WHERE a.idAreaPadre.idArea = :idAreaPadre"),
     @NamedQuery(name = "Espacio.findAll", query = "SELECT e FROM Espacio e"),
     @NamedQuery(name = "Espacio.findByIdArea", query = "SELECT e FROM Espacio e WHERE e.idArea.idArea = :idArea ORDER BY e.nombre ASC"),

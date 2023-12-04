@@ -63,11 +63,12 @@
                     nombre: nombre
                 };
 
-                fetch('http://localhost:8080/parqueoWebApp/resources/tipo_espacio/'+document.getElementById('idTipoEspacioInput').value, {
-                    method: 'DELETE',
+                fetch('http://localhost:8080/ParqueoWebapp/resources/tipo_espacio/', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify(data) // Serialize the JavaScript object to JSON format
                 })
                         .then(response => {
                             if (response.ok) {
@@ -84,7 +85,7 @@
 
             // GET EN TIPO_ESPACIO
             document.getElementById('GETButton').addEventListener('click', function () {
-                fetch('http://localhost:8080/parqueoWebApp/resources/tipo_espacio', {
+                fetch('http://localhost:8080/ParqueoWebapp/resources/tipo_espacio', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -115,10 +116,10 @@
 
 
             //WEBSOCKET CALL PARA ACTUALIZAR EN EL RESTO DE CLIENTES
-            var ws = new WebSocket("ws://localhost:8080/parqueoWebApp/wsnotificar_cambios");
+            var ws = new WebSocket("ws://localhost:8080/ParqueoWebapp/wsnotificar_cambios");
             ws.onmessage = function (e) {
                 console.log("Mensaje recibido", e);
-                fetch('http://localhost:8080/parqueoWebApp/resources/tipo_espacio', {
+                fetch('http://localhost:8080/ParqueoWebapp/resources/tipo_espacio', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'

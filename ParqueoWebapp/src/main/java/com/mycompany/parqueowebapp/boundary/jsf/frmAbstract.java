@@ -45,8 +45,7 @@ public abstract class frmAbstract<T> implements Serializable {
         }
         return resultado;
     }
-    
-    
+
     public List<T> cargarDatos(int primero, int tamanio) {
         List<T> resultado = null;
         try {
@@ -124,6 +123,23 @@ public abstract class frmAbstract<T> implements Serializable {
         this.estado = EstadosCRUD.NINGUNO;
     }
 
+    public void btnGuardarHandler(ActionEvent ae) {
+        FacesMessage mensaje;
+        try {
+            AbstractDataAccess<T> allBean = getDataAccess();
+            allBean.create(registro);
+            this.estado = EstadosCRUD.NINGUNO;
+            this.registro = null;
+            mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro guardado con exito", "Se creo el registro");
+            getFacesContext().addMessage(null, mensaje);
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR, "No se pudo guardar el registro", "No se pudo almacenar el registro");
+            getFacesContext().addMessage(null, mensaje);
+            this.registro = null;
+        }
+    }
+
     public void btnModificarHandler(ActionEvent ae) {
         T modify = null;
         try {
@@ -149,25 +165,6 @@ public abstract class frmAbstract<T> implements Serializable {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
 
         }
-
-    }
-
-    public void btnGuardarHandler(ActionEvent ae) {
-        FacesMessage mensaje = null;
-        try {
-            AbstractDataAccess<T> allBean = getDataAccess();
-            allBean.create(registro);
-            this.estado = EstadosCRUD.NINGUNO;
-            mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro guardado con exito", "Se creo el registro");
-            getFacesContext().addMessage(null, mensaje);
-            return;
-        } catch (Exception ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
-
-        }
-        mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR, "No se pudo guardar el registro", "No se pudo almacenar el registro");
-        getFacesContext().addMessage(null, mensaje);
-        this.registro = null;
 
     }
 

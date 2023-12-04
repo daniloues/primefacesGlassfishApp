@@ -1,16 +1,21 @@
 package com.mycompany.parqueowebapp.boundary.jsf;
 
-import com.mycompany.parqueowebapp.app.entity.Area;
 import com.mycompany.parqueowebapp.app.entity.ReservaHistorial;
+import com.mycompany.parqueowebapp.app.entity.TipoReserva;
+import com.mycompany.parqueowebapp.app.entity.TipoReservaSecuencia;
 import com.mycompany.parqueowebapp.control.AbstractDataAccess;
-import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import com.mycompany.parqueowebapp.control.ReservaHistorialBean;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.Dependent;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.primefaces.event.NodeSelectEvent;
+import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.TreeNode;
 
@@ -19,7 +24,7 @@ import org.primefaces.model.TreeNode;
  * @author daniloues
  */
 @Named
-@ViewScoped
+@Dependent
 public class FrmReservaHistorial extends frmAbstract<ReservaHistorial> implements Serializable {
     
     
@@ -27,7 +32,10 @@ public class FrmReservaHistorial extends frmAbstract<ReservaHistorial> implement
     EN ESTE FRM SE DEBE REGRESAR EL REGISTRO ACTUAL QUE SE CREA CUANDO SE INICIALIZA, USAR NUEVAMENTE DE EJEMPLO EL FrmArea,
     MODIFICAR ACORDE
     */
-
+    
+    @Inject
+    FrmTipoReservaSecuencia frmTRS;
+    
     @Inject
     ReservaHistorialBean rhBean;
 
@@ -36,7 +44,36 @@ public class FrmReservaHistorial extends frmAbstract<ReservaHistorial> implement
 
     TreeNode raiz;
     TreeNode nodoSeleccionado;
-
+    TipoReserva idTipoReserva;
+    
+    @PostConstruct
+    @Override
+    public void inicializar() {
+        super.inicializar();
+        instanciarRegistro();
+    }
+    
+    
+    // EN ESTE PUNTO EL REGISTRO DE ESTE FORMULARIO TIENE EL IDRESERVA SETEADO Y EL IDTIPORESERVA SETEADO
+    
+    public void guardarHistorialReserva() {
+        
+        
+        registro.setIdTipoReservaSecuencia(frmTRS.findRaizTipoReserva(idTipoReserva));
+        registro.setActivo(true);
+        registro.setFechaAlcanzado(new Date());
+        rhBean.create(registro);
+    }
+    
+    
+        public void generarArbol(TreeNode padre, TipoReservaSecuencia actual) {
+        DefaultTreeNode nuevoPadre = new DefaultTreeNode(actual, padre);
+        List<TipoReservaSecuencia> hijos = this.frmTRS.findHijosByTipoReservaSecuencia(actual);
+        for (TipoReservaSecuencia hijo : hijos) {
+            generarArbol(nuevoPadre, hijo);
+        }
+    }
+    
     /*
     ESTE METODO SE ENCARGA DE SELECCIONAR EL NODO DEL ARBOL SEGUN EL ELEMENTO SELECCIONADO
     */
@@ -44,14 +81,10 @@ public class FrmReservaHistorial extends frmAbstract<ReservaHistorial> implement
         this.registro = (ReservaHistorial) nse.getTreeNode().getData();
         this.seleccionarRegistro();
         
-        /*
-        ESTE ES ES UN COPIA PEGA DE FrmArea USAR DE BASE PARA GUIARSE COMO CREAR ESTE METODO, DEJO ABAJO COMENTADO
-        COMO ES EN FrmArea PARA HACERLO CON RESPECTO A RESERVAHISTORIAL Y TIPORESERVASECUENCIA
-        */
-//        if (this.registro != null && this.registro.getIdArea() != null && this.frmEspacio != null) {
-//            this.frmEspacio.setIdArea(this.registro.getIdArea());
-//        }
     }
+    
+    
+    
     
     @Override
     public AbstractDataAccess<ReservaHistorial> getDataAccess() {
@@ -89,7 +122,7 @@ public class FrmReservaHistorial extends frmAbstract<ReservaHistorial> implement
     public LazyDataModel<ReservaHistorial> getModelo() {
         return super.getModelo();
     }
-
+    
     public TreeNode getRaiz() {
         return raiz;
     }
@@ -105,4 +138,16 @@ public class FrmReservaHistorial extends frmAbstract<ReservaHistorial> implement
     public void setNodoSeleccionado(TreeNode nodoSeleccionado) {
         this.nodoSeleccionado = nodoSeleccionado;
     }
+
+    @Override
+    public ReservaHistorial getRegistro() {
+        return registro;
+    }
+
+    @Override
+    public void setRegistro(ReservaHistorial registro) {
+        this.registro = registro;
+    }
+    
+    
 }

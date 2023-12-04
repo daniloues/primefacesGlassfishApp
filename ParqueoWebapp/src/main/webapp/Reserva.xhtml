@@ -118,16 +118,16 @@
                         <h:panelGroup id="pnlHistorialDetalle">
                             <h:panelGrid rendered="#{not empty frmReserva.frmReservaHistorial.registro}">
                                 <h:form id="frmHistorialDetalle">
-<!--                                    <h:panelGrid columns="2">
+                                    <h:panelGrid columns="2">
                                         <h:outputLabel value="Estado"/>
                                         <h:outputText value="#{frmReserva.frmReservaHistorial.registro.idTipoReservaSecuencia.nombre}"/>  
                                         <h:outputLabel value="Fecha Alcanzado"/>
-                                        <h:outputText value="#{frmReserva.frmReservaHistorial.registro.fechaAlcanzado}"/> 
+                                        <h:outputText value="#{frmReserva.frmReservaHistorial.registro.fechaAlcanzado}"> 
                                         <f:convertDateTime timeZone="GMT" pattern="dd/MM/yyyy HH:mm:ss z"/>
                                         </h:outputText>
                                         <h:outputLabel value="Actual"/>
-                                        <h:outputText value="{frmReserva.frmReservaHistorial.registro.activo?'SI':'NO'}"/>  
-                                    </h:panelGrid>-->
+                                        <h:outputText value="{frmReserva.frmReservaHistorial.registro.activo?'SI':'NO'}"/>
+                                    </h:panelGrid>
                                     <btnparq:botonesBottom bean="#{frmReserva.frmReservaHistorial}" 
                                                            refrescar=":tabDetalle:pnlHistorialDetalle :tabDetalle:frmTree"/>
                                 </h:form>

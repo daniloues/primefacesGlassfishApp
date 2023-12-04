@@ -17,7 +17,7 @@
             name="refrescar"
             type="java.lang.String"
             required="false"
-            default=":pnlDetalle @form"/>
+            default=":pnlDetalle"/>
     </cc:interface>
 
 <!-- IMPLEMENTATION -->
@@ -26,17 +26,17 @@
         <p:commandButton value="Guardar" 
                          style="margin: 10px;"
                          actionListener="#{cc.attrs.bean.btnGuardarHandler}" 
-                         update="@form :frmTabla"
+                         update="#{cc.attrs.refrescar}"
                          rendered="#{cc.attrs.bean.estado == 'NUEVO'}"/>
         <p:commandButton value="Modificar" 
                          style="margin: 10px;"
                          actionListener="#{cc.attrs.bean.btnModificarHandler}" 
-                         update="@form :pnlDetalle :frmTabla"
+                         update="#{cc.attrs.refrescar}"
                          rendered="#{cc.attrs.bean.estado == 'MODIFICAR'}"/>
         <p:commandButton value="Eliminar" 
                          style="margin: 10px;"
                          actionListener="#{cc.attrs.bean.btnEliminarHandler}" 
-                         update="@form :pnlDetalle :frmTabla"
+                         update="#{cc.attrs.refrescar}"
                          rendered="#{cc.attrs.bean.estado == 'MODIFICAR'}"/>
     </h:panelGrid>
 </cc:implementation>

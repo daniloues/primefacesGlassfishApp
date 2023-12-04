@@ -30,6 +30,10 @@ public class FrmTipoReserva extends frmAbstract<TipoReserva> implements Serializ
         return this.trBean;
     }
 
+    public TipoReservaBean getTrBean() {
+        return trBean;
+    }
+
     @Override
     public FacesContext getFacesContext() {
         return this.fc;

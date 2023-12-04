@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Movie Seat Booking</title>
+  </head>
+  <body>
+    <div class="movie-container">
+      <label>Pick a movie:</label>
+      <select id="movie">
+        <option value="10">Avengers: Endgame ($10)</option>
+        <option value="12">Joker ($12)</option>
+        <option value="8">Toy Story 4 ($8)</option>
+        <option value="9">The Lion King ($9)</option>
+      </select>
+    </div>
+
+    <ul class="showcase">
+      <li>
+        <div class="seat"></div>
+        <small>N/A</small>
+      </li>
+      <li>
+        <div class="seat selected"></div>
+        <small>Selected</small>
+      </li>
+      <li>
+        <div class="seat occupied"></div>
+        <small>Occupied</small>
+      </li>
+    </ul>
+      
+      
+      <div class="container">
+          <div class="container left">
+              <div class="row">
+                  <div>
+                  <button class="button" id="area-button">SELECCIONAR AREA</button>    
+                  </div>
+                  </div>
+              <div class="row">
+                  <div>
+                      <button class="button" id="space-button">SELECCIONAR ESPACIO</button>
+
+                  </div>
+              </div>
+                  
+               <div class="row">
+                  <div>
+                      <button class="button" id="filter-button">FILTROS</button>
+
+                  </div>
+              </div>
+                  
+              
+      </div>
+          <div class="container right">
+            <div class="screen"></div>
+
+        <div class="row">
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+      </div>
+      <div class="row">
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat occupied"></div>
+        <div class="seat occupied"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+      </div>
+      <div class="row">
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat occupied"></div>
+        <div class="seat occupied"></div>
+      </div>
+      <div class="row">
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+      </div>
+      <div class="row">
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat occupied"></div>
+        <div class="seat occupied"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+      </div>
+      <div class="row">
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat"></div>
+        <div class="seat occupied"></div>
+        <div class="seat occupied"></div>
+        <div class="seat occupied"></div>
+        <div class="seat"></div>
+      </div>
+    </div>
+          
+      </div>
+    
+
+    <p class="text">
+      You have selected <span id="count">0</span> seats for a price of $<span
+        id="total"
+        >0</span
+      >
+    </p>
+
+    <script src="Reservar.js"></script>
+  </body>
+</html>
+
+
+<!--<html>
+USE AS TEMPLATE FOR ADDING SPECIC OPTIONS
+<head>
+<style>
+/* CSS code to style the interface */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.left {
+  width: 40%;
+  background-color: pink;
+}
+
+.right {
+  width: 60%;
+  background-color: beige;
+}
+
+.list {
+  list-style: none;
+  padding: 20px;
+}
+
+.list-item {
+  margin: 10px;
+  border: 1px solid black;
+  cursor: pointer;
+}
+
+.list-item:hover {
+  background-color: yellow;
+}
+
+.list-item.selected {
+  background-color: green;
+}
+
+.button {
+  display: block;
+  width: 80%;
+  margin: 10px auto;
+  padding: 10px;
+  border: none;
+  background-color: blue;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: lightblue;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="left">
+    <button class="button" id="area-button">SELECCIONAR AREA</button>
+    <button class="button" id="space-button">SELECCIONAR ESPACIO</button>
+    <button class="button" id="filter-button">FILTROS</button>
+  </div>
+  <div class="right">
+    <h1>ESPACIOS DISPONIBLES</h1>
+    <ul class="list" id="space-list">
+      <li class="list-item">Espacio 1</li>
+      <li class="list-item">Espacio 2</li>
+      <li class="list-item">Espacio 3</li>
+      <li class="list-item">Espacio 4</li>
+      <li class="list-item">Espacio 5</li>
+    </ul>
+  </div>
+</div>
+<script>
+// JavaScript code to add functionality to the interface
+// Get the elements from the document
+const areaButton = document.getElementById("area-button");
+const spaceButton = document.getElementById("space-button");
+const filterButton = document.getElementById("filter-button");
+const spaceList = document.getElementById("space-list");
+const listItems = document.querySelectorAll(".list-item");
+
+// Define a function to handle the click event on the area button
+function handleAreaClick() {
+  // For now, just alert a message
+  alert("You clicked the area button");
+}
+
+// Define a function to handle the click event on the space button
+function handleSpaceClick() {
+  // For now, just alert a message
+  alert("You clicked the space button");
+}
+
+// Define a function to handle the click event on the filter button
+function handleFilterClick() {
+  // For now, just alert a message
+  alert("You clicked the filter button");
+}
+
+// Define a function to handle the click event on a list item
+function handleListItemClick(event) {
+  // Get the clicked element from the event object
+  const clickedItem = event.target;
+  // Loop through all the list items and remove the selected class
+  for (let item of listItems) {
+    item.classList.remove("selected");
+  }
+  // Add the selected class to the clicked item
+  clickedItem.classList.add("selected");
+}
+
+// Add event listeners to the buttons and the list items
+areaButton.addEventListener("click", handleAreaClick);
+spaceButton.addEventListener("click", handleSpaceClick);
+filterButton.addEventListener("click", handleFilterClick);
+spaceList.addEventListener("click", handleListItemClick);
+</script>
+</body>
+</html>-->

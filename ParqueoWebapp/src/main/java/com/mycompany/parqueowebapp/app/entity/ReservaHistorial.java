@@ -9,6 +9,8 @@ import java.util.Date;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -23,16 +25,17 @@ import jakarta.persistence.TemporalType;
  * @author daniloues
  */
 @Entity
-@Table(name = "reserva_historial", schema = "public")
+@Table(name = "reserva_historial")
 @NamedQueries({
     @NamedQuery(name = "ReservaHistorial.findAll", query = "SELECT r FROM ReservaHistorial r"),
     @NamedQuery(name = "ReservaHistorial.findByIdReservaHistorial", query = "SELECT r FROM ReservaHistorial r WHERE r.idReservaHistorial = :idReservaHistorial"),
     @NamedQuery(name = "ReservaHistorial.findByFechaAlcanzado", query = "SELECT r FROM ReservaHistorial r WHERE r.fechaAlcanzado = :fechaAlcanzado"),
-    @NamedQuery(name = "ReservaHistorial.findByActivo", query = "SELECT r FROM ReservaHistorial r WHERE r.activo = :activo")})
+    @NamedQuery(name = "ReservaHistorial.findByActivo", query = "SELECT (r.idReserva.idEspacio) FROM ReservaHistorial r WHERE r.activo = :activo")})
 public class ReservaHistorial implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "id_reserva_historial")
     private Long idReservaHistorial;

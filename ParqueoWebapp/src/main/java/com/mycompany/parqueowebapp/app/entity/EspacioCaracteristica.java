@@ -22,7 +22,7 @@ import jakarta.persistence.Table;
  * @author daniloues
  */
 @Entity
-@Table(name = "espacio_caracteristica", schema = "public")
+@Table(name = "espacio_caracteristica")
 @NamedQueries({
     @NamedQuery(name = "EspacioCaracteristica.findAll", query = "SELECT e FROM EspacioCaracteristica e"),
     @NamedQuery(name = "EspacioCaracteristica.findByIdEspacioCaracteristica", query = "SELECT e FROM EspacioCaracteristica e WHERE e.idEspacioCaracteristica = :idEspacioCaracteristica"),

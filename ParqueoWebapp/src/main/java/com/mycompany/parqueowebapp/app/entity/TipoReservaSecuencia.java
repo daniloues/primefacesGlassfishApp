@@ -24,8 +24,10 @@ import jakarta.persistence.Table;
  * @author daniloues
  */
 @Entity
-@Table(name = "tipo_reserva_secuencia, schema = public")
+@Table(name = "tipo_reserva_secuencia")
 @NamedQueries({
+    @NamedQuery(name = "TipoReservaSecuencia.findHijosByPadre", query = "SELECT t FROM TipoReservaSecuencia t WHERE t.idTipoReservaSecuenciaPadre = :idTipoReservaSecuenciaPadre"),
+    @NamedQuery(name = "TipoReservaSecuencia.findRaizByIdTipoReserva", query = "SELECT t FROM TipoReservaSecuencia t WHERE t.idTipoReserva.idTipoReserva = :idTipoReserva AND t.idTipoReservaSecuenciaPadre IS NULL"),
     @NamedQuery(name = "TipoReservaSecuencia.findAll", query = "SELECT t FROM TipoReservaSecuencia t"),
     @NamedQuery(name = "TipoReservaSecuencia.findByIdTipoReservaSecuencia", query = "SELECT t FROM TipoReservaSecuencia t WHERE t.idTipoReservaSecuencia = :idTipoReservaSecuencia"),
     @NamedQuery(name = "TipoReservaSecuencia.findByIndicaFin", query = "SELECT t FROM TipoReservaSecuencia t WHERE t.indicaFin = :indicaFin"),

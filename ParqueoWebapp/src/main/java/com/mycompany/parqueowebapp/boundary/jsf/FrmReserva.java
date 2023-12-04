@@ -20,6 +20,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIOutput;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
 import jakarta.faces.event.AjaxBehaviorEvent;
 import jakarta.faces.model.SelectItem;
 import jakarta.faces.validator.ValidatorException;
@@ -27,6 +28,8 @@ import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.primefaces.event.NodeSelectEvent;
 import org.primefaces.model.DefaultTreeNode;
@@ -85,9 +88,6 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
     @Inject
     FrmTipoReserva frmTR;
 
-    // SE DEBE LLEVAR LA SECUENCIA DE LAS RESERVAS, NO ESTOY SEGURO SI SERIA TRAER LA TABLA O EL DATO, SE DEJARA A DISCRECION
-//    @Inject
-//    Frm o Bean de TipoReservaSecuencia
     // SE NECESITARA AGREGAR LOS POSIBLES TIPOS DE ESPACIOS
     @Inject
     TipoEspacioBean teBean;
@@ -95,11 +95,10 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
     // SE NECESITARA IR A TRAER LAS CARACTERISTICAS DE LOS ESPACIOS
     @Inject
     EspacioCaracteristicaBean terBean;
-
     // VARIABLES
-    Area areaE;
+
     int idAreaSeleccionada;
-    Date TemporalDate;
+    List<Espacio> espaciosTotales;
     List<Espacio> espaciosDisponibles;
     List<TipoReserva> listaTipoReserva;
     String pathEspacio;
@@ -107,8 +106,9 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
     TreeNode nodoSeleccionado;
     // NO CORREGIR ERROR DE NOMBRE, ASI ESTA EN EL XHTML DEL INGENIERO XD
     List<TipoEspacio> caractaristicasDisponibles;
-    List<Integer> caracteristicasSeleccionadas;
+    List<TipoEspacio> caracteristicasSeleccionadas;
     List<SelectItem> caracteristicasDisponiblesAsItems;
+
 
 
     /*
@@ -126,20 +126,41 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
             // No hay características seleccionadas, mostrar todos los espacios
             Area area = (Area) nodoSeleccionado.getData();
             espaciosDisponibles = eBean.findByIdArea(area.getIdArea(), 0, 10000);
+            
         }
     }
+    @Override
+        public void btnGuardarHandler(ActionEvent ae) {
+        FacesMessage mensaje;
+        try {
+            rBean.create(registro);
+            this.estado = EstadosCRUD.NINGUNO;
+            frmRH.registro.setIdReserva(registro);
+            frmRH.idTipoReserva = registro.getIdTipoReserva();
+            frmRH.guardarHistorialReserva();
+            mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro guardado con exito", "Se creo el registro");
+            getFacesContext().addMessage(null, mensaje);
+            this.registro = null;
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR, "No se pudo guardar el registro", "No se pudo almacenar el registro");
+            getFacesContext().addMessage(null, mensaje);
+            this.registro = null;
+        }
+    }
+    
 
     /*
     ESTE METODO SE ENCARGA DE SELECCIONAR EL NODO DEL ARBOL SEGUN EL ELEMENTO SELECCIONADO
      */
     public void seleccionarNodoListener(NodeSelectEvent nse) {
-        Area area = (Area) nse.getTreeNode().getData();
-        this.seleccionarRegistro();
-        System.out.println("selecionaste " + (Area) nse.getTreeNode().getData());
-        if (this.areaE != null && this.areaE.getIdArea() != null && this.frmEspacio != null) {
+        Area areaE = (Area) nse.getTreeNode().getData();
+        System.out.println("selecionaste " + areaE.getNombre() + " , ID: "+areaE.getIdArea());
+        if (areaE.getIdArea() != null && this.frmEspacio != null) {
             this.frmEspacio.setIdArea(areaE.getIdArea());
         }
-        espaciosDisponibles = eBean.findByIdArea(area.getIdArea(), 0, 10000);
+        espaciosDisponibles = eBean.findEspaciosByIdAreaPadre(frmEspacio.idArea, 0, 10000);
+        espaciosDisponibles = eBean.filtrarOcupados(espaciosDisponibles, this.registro.getDesde(), this.registro.getHasta());
         caractaristicasDisponibles = teBean.findRange(0, 100000);
 
         // Lista de objetos SelectItem que representan las opciones disponibles
@@ -151,7 +172,29 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
 
         setCaracteristicasDisponiblesAsItems(items);
     }
+    
+        public void seleccionarNodoListenerArea(NodeSelectEvent nse) {
+        Area areaE = (Area) nse.getTreeNode().getData();
+        System.out.println("selecionaste " + areaE.getNombre() + " , ID: "+areaE.getIdArea());
+        if (areaE.getIdArea() != null && this.frmEspacio != null) {
+            this.frmEspacio.setIdArea(areaE.getIdArea());
+            this.idAreaSeleccionada = areaE.getIdArea();
+        }
+        espaciosTotales = eBean.findAll();
+        espaciosDisponibles = eBean.findEspaciosByIdAreaPadre(areaE.getIdArea(), 0, 10000);
+        caractaristicasDisponibles = teBean.findRange(0, 100000);
 
+        // Lista de objetos SelectItem que representan las opciones disponibles
+        List<SelectItem> items = new ArrayList<>();
+
+        for (TipoEspacio caracteristica : caractaristicasDisponibles) {
+            items.add(new SelectItem(caracteristica, caracteristica.getNombre()));
+        }
+        
+        setCaracteristicasDisponiblesAsItems(items);
+    }
+    
+    
     /* 
     VER MIN 11.47 DE LA GRABACION DEL INGENIERO DEL PARCIAL, ESTE METODO PARECE QUE REGRESA UN STRING QUE CONCATENA 
     EL NOMBRE DEL ESPACIO Y EL PATH DEL AREA HASTA DICHO ESPACIO. TENTATIVAMENTE REGRESA UN STRING
@@ -171,7 +214,7 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
         }
         return "";
     }
-
+    
     @Override
     public List<Reserva> cargarDatos(int primero, int tamanio) {
         listaTipoReserva = trBean.findAll();
@@ -194,26 +237,18 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
     ESTE METODO SE ASEGURA QUE LA FECHA 'DESDE' NO SEA MAYOR A LA 'HASTA'. DE PREFERENCIA HACER LA COMPARACION EN UN METODO
     EN LA CLASE 'COMPARADORFECHAS' PARA QUE TODOS LO UTILICEMOS PARA COMPARAR FECHAS
      */
-    private void ocultarPanelEspacio() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        UIComponent panelEspacio = context.getViewRoot().findComponent("form:pnlEspacio"); // Reemplaza "form" con el ID de tu formulario
-        if (panelEspacio != null) {
-            panelEspacio.setRendered(false);
-        }
-    }
-
     public void validate(FacesContext context, UIComponent component, Object value) {
         Date fechaHasta = (Date) value;
         Date fechaDesde = registro.getDesde();
 
         if (fechaHasta != null && fechaDesde != null && fechaHasta.before(fechaDesde)) {
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "La fecha no validas La fecha No pued ser menor que la inicial", null);
-
+                    "La fecha no puede ser menor que la inicial", null);
             registro.setHasta(null);
             throw new ValidatorException(message);
         }
     }
+    
 
     @Override
     public AbstractDataAccess<Reserva> getDataAccess() {
@@ -242,7 +277,7 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
         }
         return null;
     }
-
+    
     @Override
     public void instanciarRegistro() {
         this.registro = new Reserva();
@@ -258,6 +293,9 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
     @Override
     public void inicializar() {
         super.inicializar();
+        // SOLO NECESARIO PARA RESERVAR.JSF no RESERVA.JSF
+//        listaTipoReserva = trBean.findAll();
+//        instanciarRegistro();
         this.raiz = new DefaultTreeNode("Areas", null);
         List<Area> lista = aBean.findByIdPadre(null, 0, 10000000);
         if (lista != null && !lista.isEmpty()) {
@@ -279,8 +317,8 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
             generarArbol(nuevoPadre, hijo);
         }
 
-    }
-
+    }    
+    
     public FrmArea getFrmArea() {
         return frmArea;
     }
@@ -289,13 +327,7 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
         return frmTR;
     }
 
-    public int getAreaSeleccionada() {
-        return idAreaSeleccionada;
-    }
 
-    public void setAreaSeleccionada(int idAreaSeleccionada) {
-        this.idAreaSeleccionada = idAreaSeleccionada;
-    }
 
     public ReservaBean getrBean() {
         return rBean;
@@ -325,6 +357,11 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
         return idAreaSeleccionada;
     }
 
+    public void setIdAreaSeleccionada(int idAreaSeleccionada) {
+        this.idAreaSeleccionada = idAreaSeleccionada;
+    }
+
+    
     public List<TipoReserva> getListaTipoReserva() {
         return listaTipoReserva;
     }
@@ -361,11 +398,11 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
         this.espaciosDisponibles = espaciosDisponibles;
     }
 
-    public List<Integer> getCaracteristicasSeleccionadas() {
+    public List<TipoEspacio> getCaracteristicasSeleccionadas() {
         return caracteristicasSeleccionadas;
     }
 
-    public void setCaracteristicasSeleccionadas(List<Integer> caracteristicasSeleccionadas) {
+    public void setCaracteristicasSeleccionadas(List<TipoEspacio> caracteristicasSeleccionadas) {
         this.caracteristicasSeleccionadas = caracteristicasSeleccionadas;
     }
 
@@ -383,5 +420,38 @@ public class FrmReserva extends frmAbstract<Reserva> implements Serializable {
 
     public void setCaracteristicasDisponiblesAsItems(List<SelectItem> caracteristicasDisponiblesAsItems) {
         this.caracteristicasDisponiblesAsItems = caracteristicasDisponiblesAsItems;
+    }
+        public TipoReservaBean getTrBean() {
+        return trBean;
+    }
+
+    public void setTrBean(TipoReservaBean trBean) {
+        this.trBean = trBean;
+    }
+
+    public FrmEspacio getFrmEspacio() {
+        return frmEspacio;
+    }
+
+    public void setFrmEspacio(FrmEspacio frmEspacio) {
+        this.frmEspacio = frmEspacio;
+    }
+
+    public List<Espacio> getEspaciosTotales() {
+        return espaciosTotales;
+    }
+
+    public void setEspaciosTotales(List<Espacio> espaciosTotales) {
+        this.espaciosTotales = espaciosTotales;
+    }
+
+    @Override
+    public Reserva getRegistro() {
+        return super.registro;
+    }
+    
+    @Override
+    public void setRegistro(Reserva registro) {
+        this.registro = registro;
     }
 }

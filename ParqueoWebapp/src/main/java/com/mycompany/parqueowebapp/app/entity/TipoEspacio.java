@@ -21,7 +21,7 @@ import jakarta.persistence.Table;
  * @author daniloues
  */
 @Entity
-@Table(name = "tipo_espacio", schema = "public")
+@Table(name = "tipo_espacio")
 @NamedQueries({
     @NamedQuery(name = "TipoEspacio.findAll", query = "SELECT t FROM TipoEspacio t ORDER BY t.nombre ASC"),
 })
